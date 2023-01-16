@@ -7,14 +7,15 @@ import path from 'path';
 const search = new SerpApi.GoogleSearch("05e105f4137d60a8ea87f7c4241a098fbe15363c9c988309d8016b02ccbb633d");
 
 // Reading our test file
-const file = reader.readFile('updatedSiteNames.xlsx')
+const file = reader.readFile('firstTwenty.xlsx')
 
 //writing search result into excel file
 const sheets = file.SheetNames
 
 const exportFile = async (key, data) => {
-    console.log(key)
-    console.log(data)
+   // console.log(key)
+    console.log("data==>",data);
+    let beds = data['knowledge_graph']['number_of_beds'];
     const workbook = new Excel.Workbook();
     const worksheet = workbook.addWorksheet('Search List');
 
@@ -22,14 +23,25 @@ const exportFile = async (key, data) => {
 
     //TODO: need to fix it
     worksheet.columns = [
-        { key: key, header: key },
+        // { key: key, header: key },
+        { key: key, header: "Site Name" },
+        { header: 'No of Beds', key: "no_of_beds", width: 32 }
     ];
 
-    worksheet.addRow(data);
+    
+   // worksheet.addRow(data);
+
+   const rowValues = [];
+rowValues[1] = key;
+rowValues[2] = beds;
+worksheet.addRow(rowValues);
+
+
+   //worksheet.addRow({id: "Name", name: 'Jane Doe', dob: new Date(1965,1,7)});
 
     //TODO: need to fix it
 
-    const exportPath = path.resolve('result1.xlsx');
+    const exportPath = path.resolve('result2.xlsx');
     await workbook.xlsx.writeFile(exportPath);
 };
 
@@ -51,12 +63,12 @@ for (let i = 0; i < sheets.length; i++) {
         }
 
         //need to search here but due to limited search commenting for now
-        // search.json(params, (data) => { exportFile(val, data) });
+        search.json(params, (data) => { exportFile(val, data) });
     })
     // console.log(params)
 
     //only serach last value for testing only, it will remove later
-    search.json(params, (data) => { exportFile(val, data) });
+    // search.json(params, (data) => { exportFile(val, data) });
 }
 
 
