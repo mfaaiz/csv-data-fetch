@@ -10,6 +10,7 @@ const SEARCH_API_KEY = "74c04fa361971039f980843a3f7c3bfaa29d7535180a3013a6108dbe
 const search = new SerpApi.GoogleSearch(SEARCH_API_KEY);
 let temp
 let finalArray = []
+let searchedArray = []
 
 let readExcel = () => {
     // Reading our test file
@@ -48,8 +49,13 @@ function serachAPI(value, params) {
 
 
 function createArray(hospitalName, data) {
+    let keys = ['knowledge_graph', 'answer_box', 'organic_results']
+    const extractedData = Object.assign({}, ...keys.map(key => ({ [key]: data[key] })))
+    searchedArray.push(extractedData)
+    // console.log("extractedData==>", extractedData);
+
+
     let bed = data?.['knowledge_graph']?.['number_of_beds'];
-    // console.log("Data====>", hospitalName, bed)
     finalArray.push({ key: hospitalName, value: bed })
     if (finalArray.length === temp.length) {
         writeExcel()
@@ -63,9 +69,9 @@ function writeExcel() {
     // Add a worksheet to the workbook
     const worksheet = workbook.addWorksheet('My Sheet');
 
-    // Add some data to the worksheet
+    console.log("searchedArray==>", searchedArray);
 
-    console.log(finalArray)
+    // Add some data to the worksheet
     finalArray.forEach((d, i) => {
         worksheet.addRow([d.key, d.value]);
     });
