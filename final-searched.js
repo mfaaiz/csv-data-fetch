@@ -1,4 +1,4 @@
-let res =
+let res1 =
     [
         {
             knowledge_graph: undefined,
@@ -676,3 +676,118 @@ let res =
             ]
         }
     ]
+
+let res = {
+    knowledge_graph: {
+        title: 'The Village | University of Michigan Health-West',
+        type: 'Hospital in Wyoming, Michigan',
+        place_id: 'ChIJHxWU2tO2GYgRVrZvTFuFvaw',
+        website: 'https://uofmhealthwest.org/',
+        description: 'University of Michigan Health-West, formerly known as Metro Health – Universityof Michigan Health, is a nonprofit health system affiliated with University of Michigan Health, withprimary and specialty care services at 30 locations in West Michigan.',
+        local_map: [Object],
+        rating: 3,
+        review_count: 288,
+        source: [Object],
+        covid_19_info: 'metrohealth.net',
+        covid_19_info_links: [Array],
+        get_online_care: 'metrohealth.net',
+        get_online_care_links: [Array],
+        address: '5900 Byron Center Ave SW, Wyoming, MI 49519',
+        address_links: [Array],
+        raw_hours: 'Open 24 hoursEmergency room - Open 24 hours · More hoursWednesdayOpen 24 hoursThursdayOpen 24 hoursFridayOpen 24 hoursSaturdayOpen 24 hoursSundayOpen 24 hoursMondayOpen 24 hoursTuesdayOpen 24 hoursSuggest new hoursUnable to add this file. Please check that it is a valid photo.',
+        hours: [Object],
+        phone: '(616) 252-7200',
+        phone_links: [Array],
+        number_of_beds: '208',
+        number_of_beds_links: [Array],
+        founded: 'December 1942',
+        founded_links: [Array],
+        emergency_department: 'Level II trauma center',
+        emergency_department_links: [Array],
+        affiliated_university: 'University of Michigan Hospital',
+        affiliated_university_links: [Array],
+        buttons: [Array],
+        merchant_description: '"Our name is changing. During this transition period you may see eitherUniversity of Michigan Health-West OR Metro Health- University of Michigan Health on patient communications and billing statements."',
+        user_reviews: [Array],
+        profiles: [Array],
+        people_also_search_for: [Array],
+        people_also_search_for_link: 'https://www.google.com/search?gl=us&tbm=lcl&q=The+Village+%7C+University+of+Michigan+Health-West&rflfq=1&num=20&uule=w+CAIQICIaQXVzdGluLFRleGFzLFVuaXRlZCBTdGF0ZXM&stick=H4sIAAAAAAAAABWQOWocURCGmcBGqTVCQUfvAobalxs4MTjwEjeipWloNGJmMBh8Gp_A5_Ip_DcNHdT7_qXq7v30wELZUqnsWsFu5T0dw0W9qtgsg6nZCii5uHUFZkrcZJGYZpAxk7aQlRFz9_QhNYQCrtpm3KnTfWgySXdURjeV-HQUE0TBKiGAkKB9YFXXdkIQkkzMqqd7drSRpjAvywQK0kSoPVvBqHGYwtTcC1ZAKFw9KGVHweGnu6WhSjZPx5YuQxYaeqAHt07HNEYB9aQusUAvhh5FUDBTODqcKXh3hSgyi5OjpBBs-zRxRRYxTjd8akr7WnAULw8chdtLdfctinLJEEsVUlwHK2AfF3BSipd9D_57OPw7PH5Zzm_bMubteh7XZb48ncbz-fLnHX09LeP7um3zyzJ-j2-v68_lcl1vv8b5eXxen07ry_w6Pi3zdjt9_LFcb_8BLUkhLPwBAAA&sa=X&ved=2ahUKEwiH04T9hNH8AhXFEVkFHaR0Dh0Q6nUoAHoECGUQAQ',
+        people_also_search_for_stick: 'H4sIAAAAAAAAABWQOWocURCGmcBGqTVCQUfvAobalxs4MTjwEjeipWloNGJmMBh8Gp_A5_Ip_DcNHdT7_qXq7v30wELZUqnsWsFu5T0dw0W9qtgsg6nZCii5uHUFZkrcZJGYZpAxk7aQlRFz9_QhNYQCrtpm3KnTfWgySXdURjeV- HQUE0TBKiGAkKB9YFXXdkIQkkzMqqd7drSRpjAvywQK0kSoPVvBqHGYwtTcC1ZAKFw9KGVHweGnu6WhSjZPx5YuQxYaeqAHt07HNEYB9aQusUAvhh5FUDBTODqcKXh3hSgyi5OjpBBs- zRxRRYxTjd8akr7WnAULw8chdtLdfctinLJEEsVUlwHK2AfF3BSipd9D_57OPw7PH5Zzm_bMubteh7XZb48ncbz - fLnHX09LeP7um3zyzJ - j2 - v68_lcl1vv8b5eXxen07ry_w6Pi3zdjt9_LFcb_8BLUkhLPwBAAA'
+    },
+    answer_box: undefined,
+    organic_results: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object]
+    ]
+}
+
+function makeNestedSearchOnResult(res) {
+    let number_of_beds;
+
+    /*-----xxxxxxxxxx    1st APPROACH   xxxxxxxx--------  
+         answer_box ==>answer ==> take the number as it is (confidence 1) */
+    if (res?.knowledge_graph?.number_of_beds !== undefined) {
+        number_of_beds = res['knowledge_graph']['number_of_beds']
+    }
+
+
+    /*-----xxxxxxxxxx    2ND APPROACH   xxxxxxxx--------  
+     answer_box ==>answer ==> take the number as it is (confidence 1) */
+
+    if (res?.answer_box !== undefined) {
+        if (res.answer_box?.answer !== undefined) {
+            number_of_beds = res['answer_box']['answer']
+        }
+    }
+
+    /*-----xxxxxxxxxx    3RD APPROACH   xxxxxxxx--------  
+    answer_box ==> snippet_highlighted_words ==> if bed is in
+    string,count total number (confidence 0.9) */
+
+    else if (res?.answer_box !== undefined) {
+        if (res.answer_box?.snippet_highlighted_words !== undefined) {
+            var pattern = /\d+/g;
+            beds_string = res.answer_box.snippet_highlighted_words.toString(); //converting array to string
+            let without_space = bed_string.replace(/ /g, ''); //removing the spaces from string
+            //counting the total of the digits in the string
+            var total = without_space.match(pattern).reduce(function (prev, num) {
+                return prev + +num;
+            }, 0);
+            console.log(total);
+            number_of_beds = total;
+        }
+    }
+
+    /*-----xxxxxxxxxx    4TH APPROACH   xxxxxxxx--------  
+     if it is only a number then it is correct / 
+            OR 
+     if the string contains bed in the array, sum all the numbers in 
+     the string(confidence 0.8 )
+ */
+
+    else if (res?.organic_results !== undefined) {
+        if (res.organic_results[0]?.snippet_highlighted_words !== undefined) {
+            //checking if this property only contains a number if true then take it only
+            if (res.organic_results[0]?.snippet_highlighted_words.match(/^[0-9]+$/) != null) {
+                number_of_beds = Number(res.organic_results[0]?.snippet_highlighted_words) //converting string to number 
+            }
+            else { //suming all the numbers 
+                var pattern = /\d+/g;
+                beds_string = res.organic_results[0]?.snippet_highlighted_words.toString(); //converting array to string
+                let without_space = bed_string.replace(/ /g, ''); //removing the spaces from string
+                //counting the total of the digits in the string
+                var total = without_space.match(pattern).reduce(function (prev, num) {
+                    return prev + +num;
+                }, 0);
+                console.log(total);
+                number_of_beds = total;
+            }
+        }
+    }
+    // console.log(number_of_beds);
+    return number_of_beds
+}
+
+console.log(makeNestedSearchOnResult(res))

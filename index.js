@@ -3,14 +3,14 @@ import reader from 'xlsx'
 import SerpApi from 'google-search-results-nodejs'
 import Excel from 'exceljs';
 
-const SEARCH_API_KEY_ONE = "05e105f4137d60a8ea87f7c4241a098fbe15363c9c988309d8016b02ccbb633d"  // used (exhausted i.e completed 100 seraches)
-const SEARCH_API_KEY = "74c04fa361971039f980843a3f7c3bfaa29d7535180a3013a6108dbe8edd4cf9"
+const SEARCH_API_KEY_ONE = "05e105f4137d60a8ea87f7c4241a098fbe15363c9c988309d8016b02ccbb633d"  //Faaiz:  used (exhausted i.e completed 100 seraches)
+const SEARCH_API_KEY_TWO = "74c04fa361971039f980843a3f7c3bfaa29d7535180a3013a6108dbe8edd4cf9" //Hamza:  used (exhausted i.e completed 100 seraches)
+const SEARCH_API_KEY = "2e2dfa25fda1feb7868692c7e1d3c80a000c5723853c8f24b2b1f5937a65d46c"
 
 // declare variables
 const search = new SerpApi.GoogleSearch(SEARCH_API_KEY);
 let temp
 let finalArray = []
-let searchedArray = []
 
 let readExcel = () => {
     // Reading our test file
@@ -51,12 +51,9 @@ function serachAPI(value, params) {
 function createArray(hospitalName, data) {
     let keys = ['knowledge_graph', 'answer_box', 'organic_results']
     const extractedData = Object.assign({}, ...keys.map(key => ({ [key]: data[key] })))
-    searchedArray.push(extractedData)
-    // console.log("extractedData==>", extractedData);
+    let result = makeNestedSearchOnResult(extractedData)
 
-
-    let bed = data?.['knowledge_graph']?.['number_of_beds'];
-    finalArray.push({ key: hospitalName, value: bed })
+    finalArray.push({ key: hospitalName, value: result })
     if (finalArray.length === temp.length) {
         writeExcel()
     }
@@ -69,18 +66,85 @@ function writeExcel() {
     // Add a worksheet to the workbook
     const worksheet = workbook.addWorksheet('My Sheet');
 
-    console.log("searchedArray==>", searchedArray);
-
     // Add some data to the worksheet
     finalArray.forEach((d, i) => {
         worksheet.addRow([d.key, d.value]);
     });
 
     // Save the workbook to an .xlsx file
-    workbook.xlsx.writeFile('data.xlsx')
+    workbook.xlsx.writeFile('result.xlsx')
         .then(() => {
             console.log('File is written!');
         });
+}
+
+function makeNestedSearchOnResult(res) {
+    let number_of_beds;
+
+    /*-----xxxxxxxxxx    1st APPROACH   xxxxxxxx--------  
+         answer_box ==>answer ==> take the number as it is (confidence 1) */
+    if (res?.knowledge_graph?.number_of_beds !== undefined) {
+        number_of_beds = res['knowledge_graph']['number_of_beds']
+    }
+
+    /*-----xxxxxxxxxx    2ND APPROACH   xxxxxxxx--------  
+     answer_box ==>answer ==> take the number as it is (confidence 1) */
+
+    if (res?.answer_box !== undefined) {
+        if (res.answer_box?.answer !== undefined) {
+            number_of_beds = res['answer_box']['answer']
+        }
+    }
+
+    /*-----xxxxxxxxxx    3RD APPROACH   xxxxxxxx--------  
+    answer_box ==> snippet_highlighted_words ==> if bed is in
+    string,count total number (confidence 0.9) */
+
+    else if (res?.answer_box !== undefined) {
+        if (res.answer_box?.snippet_highlighted_words !== undefined) {
+            var pattern = /\d+/g;
+            let beds_string = res.answer_box.snippet_highlighted_words.toString(); //converting array to string
+            let without_space = beds_string.replace(/ /g, ''); //removing the spaces from string
+            //counting the total of the digits in the string
+            var total = without_space.match(pattern).reduce(function (prev, num) {
+                return prev + +num;
+            }, 0);
+            console.log(total);
+            number_of_beds = total;
+        }
+    }
+
+    /*-----xxxxxxxxxx    4TH APPROACH   xxxxxxxx--------  
+     if it is only a number then it is correct / 
+            OR 
+     if the string contains bed in the array, sum all the numbers in 
+     the string(confidence 0.8 )
+ */
+
+    else if (res?.organic_results !== undefined) {
+        if (res.organic_results[0]?.snippet_highlighted_words !== undefined) {
+            //checking if this property only contains a number if true then take it only
+            if (res.organic_results[0]?.snippet_highlighted_words[0].match(/^[0-9]+$/) != null) {
+                number_of_beds = Number(res.organic_results[0]?.snippet_highlighted_words[0]) //converting string to number 
+            }
+            else { //suming all the numbers 
+                var pattern = /\d+/g;
+                let beds_string = res.organic_results[0]?.snippet_highlighted_words[0].toString(); //converting array to string
+                let without_space = beds_string.replace(/ /g, ''); //removing the spaces from string
+                //counting the total of the digits in the string
+                let arr = without_space.match(pattern)
+                if (arr != null) {
+                    var total = arr.reduce((prev, num) => {
+                        return prev + +num;
+                    }, 0);
+                    console.log(total);
+                    number_of_beds = total;
+                }
+            }
+        }
+    }
+    // console.log(number_of_beds);
+    return number_of_beds
 }
 
 readExcel()
