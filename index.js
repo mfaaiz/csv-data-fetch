@@ -17,7 +17,7 @@ let finalArray = []
 
 let readExcel = () => {
     // Reading our test file
-    const file = reader.readFile('25.xlsx')
+    const file = reader.readFile('44.xlsx')
 
     //writing search result into excel file
     const sheets = file.SheetNames
@@ -86,7 +86,7 @@ function writeExcel() {
     })
 
     // Save the workbook to an .xlsx file
-    workbook.xlsx.writeFile('result-25.xlsx').then(() => {
+    workbook.xlsx.writeFile('result-44.xlsx').then(() => {
         console.log('File is written!')
     })
 }
